@@ -50,6 +50,28 @@ fn print_lyrics(
     current_offset: Option<std::time::Duration>,
     player_handle: &mpris::Player,
 ) {
+    let mut current_audio = String::new();
+    let mut is_current_audio = || {
+        // If the audio has changed, then recall the function
+        if let Ok(i) = player_handle.get_metadata() {
+            let mut constructed = String::new();
+            if let Some(i) = i.url() {
+                constructed.push_str(i);
+            }
+            if let Some(i) = i.title() {
+                constructed.push_str(i);
+            }
+            if constructed == current_audio {
+                true
+            } else {
+                current_audio = constructed;
+                false
+            }
+        } else {
+            false
+        }
+    };
+    is_current_audio();
     let real_lyrics = match lyrics {
         Ok(i) => i.content,
         Err(_) => Box::new([lyric::LyricsType::Standard(
@@ -59,6 +81,9 @@ fn print_lyrics(
     };
     let mut current_duration = current_offset.unwrap_or_default();
     for i in real_lyrics.as_ref() {
+        if !is_current_audio() {
+            return;
+        }
         // We can't implement colored lyrics yet
         let (duration, lyric) = match i {
             lyric::LyricsType::Standard(i, j) => (i, j.as_ref().to_string()),
