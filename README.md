@@ -40,6 +40,12 @@ Add following lines to your `waybar` configuration:
 
 And don't forget to start `lyricer` in the background, preferrably with sway configutation.
 
+## Why it's too laggy?
+
+Contrast to common implementation, `lyricer` will stay idle whenever it can. This means that the lyrics will not change untill they "suppose" to change according to the lrc file. Thus, when user manually change the audio, `lyricer` will not change untill the current lyrics line is finished.
+
+Sometime the lyric will also lag regardless user interaction. The reason behind this is being investigated. PRs or helpful issues are welcome.
+
 ## TODOs
 
 The following features are either planning or currently unable to archive:
@@ -49,6 +55,10 @@ The following features are either planning or currently unable to archive:
 2. Colorful output
 
 3. More lyrics support (less error-prone)
+
+4. Fix laggy performance
+
+5. Manual selection of lyric file
 
 ## Contributing
 
