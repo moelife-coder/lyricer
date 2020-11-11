@@ -7,7 +7,7 @@ Lyricer is an addon for waybar to display lyrics.
 Use `cargo` to build and install it.
 
 ```bash
-cargo install --release lyricer
+cargo install lyricer
 ```
 or
 

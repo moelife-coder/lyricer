@@ -6,7 +6,7 @@ edition = "2018"
 readme = "README.md"
 license = "GPL-3.0-only"
 description = "An addon for waybar to display lyrics"
-homepage = "https://github.com/moelife-coder/lyricers"
+homepage = "https://github.com/moelife-coder/lyricer"
 repository = "https://github.com/moelife-coder/lyricer"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
