@@ -1,6 +1,6 @@
 # Lyricer
 
-Lyricer is a addon for waybar to display lyrics.
+Lyricer is an addon for waybar to display lyrics.
 
 ## Installation
 
@@ -30,6 +30,8 @@ Add following lines to your `waybar` configuration:
     "return-type": "json"
 }
 ```
+
+And don't forget to start `lyricer` in the background, preferrably with sway configutation.
 
 ## Contributing
 
