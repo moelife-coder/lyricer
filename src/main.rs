@@ -50,6 +50,10 @@ fn main() {
                 &player,
             );
         }
+        // When there's no available player, remove possible files
+        if std::path::Path::new("/tmp/lyrics").is_file() {
+            std::fs::remove_file("/tmp/lyrics").unwrap();
+        }
     }
 }
 fn get_lyrics(audio_path: &std::path::Path) -> Result<lyric::Lyric, ()> {
