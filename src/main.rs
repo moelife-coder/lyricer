@@ -11,6 +11,9 @@ fn main() {
             }
         };
         loop {
+            if !player.is_running() {
+                break;
+            }
             // Get metadata
             let metadata = match player.get_metadata() {
                 Ok(i) => i,
