@@ -128,13 +128,9 @@ fn parse_time(string: &str) -> Result<std::time::Duration, ()> {
         .ok_or(())?
         .parse::<u32>()
         .map_err(|_| ())?;
-    let micros = string
-        .get(y + 1..)
-        .ok_or(())?
-        .parse::<u32>()
+    let micros = &format!("0.{}", string.get(y + 1..).ok_or(())?)
+        .parse::<f64>()
         .map_err(|_| ())?;
-    let sum_milis = minute as u64 * 60 * 1000
-        + second as u64 * 1000
-        + micros as u64 * if micros > 1000 { 1 } else { 10 };
+    let sum_milis = minute as u64 * 60 * 1000 + second as u64 * 1000 + (micros * 1000.0) as u64;
     Ok(std::time::Duration::from_millis(sum_milis))
 }

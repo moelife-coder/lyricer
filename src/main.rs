@@ -117,6 +117,9 @@ fn print_lyrics(
                     .join(" "),
             ),
         };
+        if lyric.trim().is_empty() {
+            continue;
+        }
         duration
             .checked_sub(current_duration)
             .map(|x| std::thread::sleep(x));
