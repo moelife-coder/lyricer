@@ -1,11 +1,28 @@
 mod lyric;
 fn main() {
+    pretty_env_logger::init();
+    log::warn!("Lyricer started.");
     loop {
-        let player = find_player();
+        let player = match find_player() {
+            Ok(i) => i,
+            Err(_) => {
+                std::thread::sleep(std::time::Duration::from_secs(1));
+                continue;
+            }
+        };
         loop {
             // Get metadata
-            let metadata = player.get_metadata().unwrap();
+            let metadata = match player.get_metadata() {
+                Ok(i) => i,
+                Err(i) => {
+                    log::error!("Error when fetching metdata: {}", i);
+                    std::thread::sleep(std::time::Duration::from_secs(1));
+                    continue;
+                }
+            };
+            log::debug!("Metata found: {:?}", metadata);
             let audio_ending = metadata.length();
+            log::debug!("Audio length: {:?}", audio_ending);
             let mut formatted_metadata = metadata.title().unwrap_or("[Unknown]").to_string();
             if let Some(i) = audio_ending {
                 formatted_metadata.push_str(&format!(" ({:#?})", i));
@@ -13,10 +30,12 @@ fn main() {
             if let Some(i) = metadata.artists() {
                 formatted_metadata.push_str(&format!("\nArtist: {}", i.join(", ")));
             }
+            log::info!("Formatted metadata: {}", formatted_metadata);
             // Get lyrics
             let audio_path =
-                urlencoding::decode(metadata.url().unwrap_or("/").split("://").nth(1).unwrap())
+                urlencoding::decode(metadata.url().unwrap_or("/").split("://").last().unwrap())
                     .unwrap();
+            log::info!("Audio path: {}", audio_path);
             let audio_path = std::path::Path::new(&audio_path);
             let lyrics = get_lyrics(audio_path);
             print_lyrics(
@@ -36,6 +55,7 @@ fn get_lyrics(audio_path: &std::path::Path) -> Result<lyric::Lyric, ()> {
         if lyric_name.is_file() {
             lyric_name.set_extension("lrc");
             if let Ok(i) = std::fs::read(lyric_name) {
+                log::info!("Audio lyrics found. Parsing...");
                 return lyric::Lyric::parse(String::from_utf8_lossy(&i).to_string());
             }
         }
@@ -82,6 +102,7 @@ fn print_lyrics(
     let mut current_duration = current_offset.unwrap_or_default();
     for i in real_lyrics.as_ref() {
         if !is_current_audio() {
+            log::warn!("Current audio has changed.");
             return;
         }
         // We can't implement colored lyrics yet
@@ -100,20 +121,23 @@ fn print_lyrics(
             .checked_sub(current_duration)
             .map(|x| std::thread::sleep(x));
         if !player_handle.is_running() {
+            log::warn!("Player is not running. Stopping...");
             return;
         }
         //current_duration += duration.to_owned();
         if let Ok(i) = player_handle.get_position() {
-            if i > (current_duration + std::time::Duration::from_millis(250)) {
+            if i > (current_duration + std::time::Duration::from_millis(125)) {
                 // Current playing position is 1 second faster than current display.
-                println!("");
-            } else if i + std::time::Duration::from_millis(250) < current_duration {
+                log::warn!("Subtitle too slow. Trying to sync up...");
+            } else if i + std::time::Duration::from_millis(125) < current_duration {
                 // Current playing position is 1 seond slower than current display.
                 // This code design disallow "return" to a point. Thus, we will simply request to recall the function.
+                log::warn!("Subtitle too fast. Trying to sync up...");
                 return;
             }
             current_duration = i
         } else {
+            log::warn!("Player does not implement position command. Subtitle might not synced.");
             current_duration = duration.to_owned()
         }
         std::fs::write(
@@ -134,6 +158,13 @@ fn output(text: &str, tooltip: &str, class: &str) -> String {
         text, tooltip, class
     )
 }
-fn find_player<'a>() -> mpris::Player<'a> {
-    mpris::PlayerFinder::new().unwrap().find_active().unwrap()
+fn find_player<'a>() -> Result<mpris::Player<'a>, ()> {
+    mpris::PlayerFinder::new()
+        .map_err(|x| {
+            log::error!("Error when finding mpris player: {}", x);
+        })?
+        .find_active()
+        .map_err(|x| {
+            log::error!("Error when finding active player: {}", x);
+        })
 }
