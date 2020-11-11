@@ -23,7 +23,6 @@ Add following lines to your `waybar` configuration:
 "modules-center": ["custom/lyrics"],
 "custom/lyrics": {
     "format": "♪ {}",
-    //"max-length": 15,
     "interval": 1, 
     "exec": "/usr/bin/cat /tmp/lyrics", 
     "exec-if": "test -f /tmp/lyrics",
