@@ -79,9 +79,17 @@ fn print_lyrics(
         }
         //current_duration += duration.to_owned();
         if let Ok(i) = player_handle.get_position() {
+            if i > (current_duration + std::time::Duration::from_millis(250)) {
+                // Current playing position is 1 second faster than current display.
+                println!("");
+            } else if i + std::time::Duration::from_millis(250) < current_duration {
+                // Current playing position is 1 seond slower than current display.
+                // This code design disallow "return" to a point. Thus, we will simply request to recall the function.
+                return;
+            }
             current_duration = i
         } else {
-            current_duration += duration.to_owned();
+            current_duration = duration.to_owned()
         }
         std::fs::write(
             target_file,
