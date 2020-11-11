@@ -2,6 +2,14 @@
 
 Lyricer is an addon for waybar to display lyrics.
 
+## Features
+
+1. Read media using `mpris`
+
+2. Fast and lightweight (<0.1% cpu usage, 1.9M after stripping)
+
+3. Completely compatiable with waybar
+
 ## Installation
 
 Use `cargo` to build and install it.
@@ -31,6 +39,16 @@ Add following lines to your `waybar` configuration:
 ```
 
 And don't forget to start `lyricer` in the background, preferrably with sway configutation.
+
+## TODOs
+
+The following features are either planning or currently unable to archive:
+
+1. Control media (pause, resume, next, previous) with buttons
+
+2. Colorful output
+
+3. More lyrics support (less error-prone)
 
 ## Contributing
 
