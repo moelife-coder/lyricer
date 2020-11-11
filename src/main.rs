@@ -28,7 +28,7 @@ fn main() {
                 formatted_metadata.push_str(&format!(" ({:#?})", i));
             }
             if let Some(i) = metadata.artists() {
-                formatted_metadata.push_str(&format!("\nArtist: {}", i.join(", ")));
+                formatted_metadata.push_str(&format!("Artist: {}", i.join(", ")));
             }
             log::info!("Formatted metadata: {}", formatted_metadata);
             // Get lyrics
@@ -142,7 +142,7 @@ fn print_lyrics(
         }
         std::fs::write(
             target_file,
-            &format!("{}", output(&lyric, formatted_metadata, "")),
+            &format!("{}", output(&lyric, formatted_metadata)),
         )
         .unwrap();
     }
@@ -152,11 +152,8 @@ fn print_lyrics(
             .map(|x| std::thread::sleep(x));
     }
 }
-fn output(text: &str, tooltip: &str, class: &str) -> String {
-    format!(
-        "{{\"text\": \"{}\", \"tooltip\": \"{}\", \"class\": \"{}\"}}",
-        text, tooltip, class
-    )
+fn output(text: &str, tooltip: &str) -> String {
+    format!("{{\"text\": \"{}\", \"tooltip\": \"{}\"}}", text, tooltip)
 }
 fn find_player<'a>() -> Result<mpris::Player<'a>, ()> {
     mpris::PlayerFinder::new()
