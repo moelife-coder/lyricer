@@ -31,7 +31,9 @@ fn main() {
                 formatted_metadata.push_str(&format!(" ({:#?})", i));
             }
             if let Some(i) = metadata.artists() {
-                formatted_metadata.push_str(&format!("Artist: {}", i.join(", ")));
+                if !i.is_empty() {
+                    formatted_metadata.push_str(&format!("by {}", i.join(", ")));
+                }
             }
             log::info!("Formatted metadata: {}", formatted_metadata);
             // Get lyrics
