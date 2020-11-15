@@ -117,6 +117,7 @@ fn print_lyrics(
         }
     };
     is_current_audio();
+    let small_duration = if lyrics.is_err() { true } else { false };
     let real_lyrics = match lyrics {
         Ok(i) => i.content,
         Err(_) => Box::new([lyric::LyricsType::Standard(
@@ -145,9 +146,13 @@ fn print_lyrics(
         if lyric.trim().is_empty() {
             continue;
         }
-        duration
-            .checked_sub(current_duration)
-            .map(|x| std::thread::sleep(x));
+        if small_duration {
+            std::thread::sleep(std::time::Duration::from_secs(1))
+        } else {
+            duration
+                .checked_sub(current_duration)
+                .map(|x| std::thread::sleep(x));
+        }
         if !player_handle.is_running() {
             log::warn!("Player is not running. Stopping...");
             return;
