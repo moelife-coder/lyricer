@@ -1,4 +1,5 @@
 mod lyric;
+const ERROR_LOOP_DURATION: std::time::Duration = std::time::Duration::from_secs(1);
 fn main() {
     pretty_env_logger::init();
     log::warn!("Lyricer started.");
@@ -6,12 +7,14 @@ fn main() {
         let player = match find_player() {
             Ok(i) => i,
             Err(_) => {
-                std::thread::sleep(std::time::Duration::from_secs(1));
+                log::warn!("Player not found.");
+                std::thread::sleep(ERROR_LOOP_DURATION);
                 continue;
             }
         };
         loop {
             if !player.is_running() {
+                log::warn!("Player has stopped. Tryning to find a new player..");
                 break;
             }
             // Get metadata
@@ -19,7 +22,7 @@ fn main() {
                 Ok(i) => i,
                 Err(i) => {
                     log::error!("Error when fetching metdata: {}", i);
-                    std::thread::sleep(std::time::Duration::from_secs(1));
+                    std::thread::sleep(ERROR_LOOP_DURATION);
                     continue;
                 }
             };
@@ -38,8 +41,21 @@ fn main() {
             log::info!("Formatted metadata: {}", formatted_metadata);
             // Get lyrics
             let audio_path =
-                urlencoding::decode(metadata.url().unwrap_or("/").split("://").last().unwrap())
-                    .unwrap();
+                match urlencoding::decode(match metadata.url().unwrap_or("/").split("://").last() {
+                    Some(i) => i,
+                    None => {
+                        log::warn!("Failed to parse audio path.");
+                        std::thread::sleep(ERROR_LOOP_DURATION);
+                        continue;
+                    }
+                }) {
+                    Ok(i) => i,
+                    Err(i) => {
+                        log::warn!("Failed to find audio path: {}", i);
+                        std::thread::sleep(ERROR_LOOP_DURATION);
+                        continue;
+                    }
+                };
             log::info!("Audio path: {}", audio_path);
             let audio_path = std::path::Path::new(&audio_path);
             let lyrics = get_lyrics(audio_path);
